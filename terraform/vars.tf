@@ -15,13 +15,13 @@ variable "tenant_id" {
 variable "location" {
   description = "Region donde se desplegaran los recursos"
   type        = string
-  default     = "francecentral"  # Tu región
+  default     = "francecentral"  # región
 }
 
 variable "resource_group_name" {
   description = "Nombre del resource group principal"
   type        = string
-  default     = "UNIR"  # Tu grupo de recursos
+  default     = "UNIR-casopractico2"  # grupo de recursos
 }
 
 # Red y VM #
@@ -108,7 +108,7 @@ variable "aks_dns_prefix" {
 variable "aks_sku_tier" {
   description = "Tier del cluster AKS"
   type        = string
-  default     = "Free"  # Free para ahorrar créditos
+  default     = "Free"  # para ahorrar créditos
 }
 
 variable "aks_node_count" {
@@ -120,5 +120,5 @@ variable "aks_node_count" {
 variable "aks_vm_size" {
   description = "Tamano de VM de los nodos del cluster AKS"
   type        = string
-  default     = "Standard_B2ts_v2"  # Tu tamaño
+  default     = "Standard_B2ts_v2"  # tamaño
 }

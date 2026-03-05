@@ -1,4 +1,3 @@
-
 # Credenciales de Azure #
 variable "subscription_id" {
   description = "ID de la suscripcion de Azure"
@@ -76,7 +75,7 @@ variable "vm_name" {
 variable "vm_size" {
   description = "Tamano de la maquina virtual"
   type        = string
-  default     = "Standard_B2ts_v2"  # tamaño de VM
+  default     = "Standard_B2s_v2"  # tamaño de VM
 }
 
 variable "vm_admin_username" {
@@ -90,7 +89,7 @@ variable "vm_admin_username" {
 variable "acr_name" {
   description = "Nombre del Azure Container Registry"
   type        = string
-  default     = "jevdevops"  # ACR 
+  default     = "jevdevopscp2"  # ACR 
 }
 
 variable "aks_name" {
@@ -120,5 +119,5 @@ variable "aks_node_count" {
 variable "aks_vm_size" {
   description = "Tamano de VM de los nodos del cluster AKS"
   type        = string
-  default     = "Standard_B2ts_v2"  # tamaño
+  default     = "Standard_B2s_v2"  # tamaño de VM para nodos AKS
 }

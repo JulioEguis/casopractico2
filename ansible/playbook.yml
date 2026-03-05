@@ -1,0 +1,34 @@
+---
+# Primero se construyen y suben las imagenes al ACR.
+- name: Setup ACR and upload images
+  hosts: acr
+  gather_facts: false
+  vars_files:
+    - secrets.yml
+  tasks:
+    - name: Pull, tag and push images to ACR
+      ansible.builtin.include_role:
+        name: acr
+
+# la VM descarga su imagen desde ACR y arranca el contenedor web.
+- name: Configure VM web server
+  hosts: webapp
+  gather_facts: true
+  become: true
+  vars_files:
+    - secrets.yml
+  tasks:
+    - name: Install Podman and deploy web server container
+      ansible.builtin.include_role:
+        name: vm
+
+# ultimo se despliega la aplicacion de AKS usando las mismas credenciales del registry.
+- name: Deploy application to AKS
+  hosts: aks
+  gather_facts: false
+  vars_files:
+    - secrets.yml
+  tasks:
+    - name: Create namespace and deploy workloads in AKS
+      ansible.builtin.include_role:
+        name: aks

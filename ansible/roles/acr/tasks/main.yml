@@ -1,0 +1,96 @@
+---
+- name: Update apt cache on control node
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Install Podman on control node
+  ansible.builtin.apt:
+    name:
+      - podman
+      - apache2-utils
+    state: present
+  become: true
+
+- name: Create local build directories
+  ansible.builtin.file:
+    path: "{{ item.build_dir }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ acr_images }}"
+
+# La imagen de la VM ya se construye con su contenido y el fichero htpasswd dentro.
+- name: Render webserver Containerfile
+  ansible.builtin.template:
+    src: webserver/Containerfile.j2
+    dest: "{{ acr_build_root }}/webserver/Containerfile"
+    mode: "0644"
+
+- name: Render webserver nginx configuration
+  ansible.builtin.template:
+    src: webserver/nginx.conf.j2
+    dest: "{{ acr_build_root }}/webserver/nginx.conf"
+    mode: "0644"
+
+- name: Render webserver landing page
+  ansible.builtin.template:
+    src: webserver/index.html.j2
+    dest: "{{ acr_build_root }}/webserver/index.html"
+    mode: "0644"
+
+- name: Create webserver basic auth file
+  ansible.builtin.command:
+    cmd: "htpasswd -bc {{ acr_build_root }}/webserver/.htpasswd {{ web_basic_auth_user }} {{ web_basic_auth_password }}"
+  no_log: true
+  changed_when: true
+
+- name: Render frontend Containerfile
+  ansible.builtin.template:
+    src: frontend/Containerfile.j2
+    dest: "{{ acr_build_root }}/frontend/Containerfile"
+    mode: "0644"
+
+- name: Render frontend landing page
+  ansible.builtin.template:
+    src: frontend/index.html.j2
+    dest: "{{ acr_build_root }}/frontend/index.html"
+    mode: "0644"
+
+- name: Render backend Containerfile
+  ansible.builtin.template:
+    src: backend/Containerfile.j2
+    dest: "{{ acr_build_root }}/backend/Containerfile"
+    mode: "0644"
+
+# Se construyen tres imagenes distintas: VM, frontend de AKS y backend persistente.
+- name: Build webserver image for the VM
+  ansible.builtin.command:
+    cmd: "podman build -t {{ acr_login_server }}/{{ web_image_name }}:{{ container_image_tag }} ."
+    chdir: "{{ acr_build_root }}/webserver"
+  changed_when: true
+
+- name: Build frontend image for AKS
+  ansible.builtin.command:
+    cmd: "podman build -t {{ acr_login_server }}/{{ app_frontend_image_name }}:{{ container_image_tag }} ."
+    chdir: "{{ acr_build_root }}/frontend"
+  changed_when: true
+
+- name: Build backend image for AKS
+  ansible.builtin.command:
+    cmd: "podman build -t {{ acr_login_server }}/{{ app_backend_image_name }}:{{ container_image_tag }} ."
+    chdir: "{{ acr_build_root }}/backend"
+  changed_when: true
+
+- name: Log in to Azure Container Registry
+  containers.podman.podman_login:
+    registry: "{{ acr_login_server }}"
+    username: "{{ acr_username }}"
+    password: "{{ acr_password }}"
+  no_log: true
+
+- name: Push images to Azure Container Registry
+  containers.podman.podman_image:
+    name: "{{ acr_login_server }}/{{ item.name }}:{{ container_image_tag }}"
+    push: true
+  loop: "{{ acr_images }}"

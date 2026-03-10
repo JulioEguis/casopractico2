@@ -1,0 +1,10 @@
+---
+# se construye en un directorio distinto para respetar la separacion que se pide en la guia.
+acr_build_root: "{{ playbook_dir }}/.build"
+acr_images:
+  - name: "{{ web_image_name }}"
+    build_dir: "{{ acr_build_root }}/webserver"
+  - name: "{{ app_frontend_image_name }}"
+    build_dir: "{{ acr_build_root }}/frontend"
+  - name: "{{ app_backend_image_name }}"
+    build_dir: "{{ acr_build_root }}/backend"

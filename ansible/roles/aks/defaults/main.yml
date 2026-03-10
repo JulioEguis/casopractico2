@@ -1,0 +1,18 @@
+---
+aks_kubeconfig_path: "{{ lookup('env', 'HOME') }}/.kube/config"
+acr_secret_name: "acr-pull-secret"
+app:
+  backend:
+    name: "backend"
+    image: "{{ acr_login_server }}/{{ app_backend_image_name }}:{{ container_image_tag }}"
+    replicas: 1
+    port: 6379
+    pvc_name: "redis-data"
+    storage: "1Gi"
+    access_mode: "ReadWriteOnce"
+  frontend:
+    name: "frontend"
+    image: "{{ acr_login_server }}/{{ app_frontend_image_name }}:{{ container_image_tag }}"
+    replicas: 1
+    port: 80
+    service_type: "LoadBalancer"

@@ -37,3 +37,4 @@ override.tf.json
 terraform.rc
 ansible/secrets.yml
 ansible/ssh_key.pem
+ansible/.build/

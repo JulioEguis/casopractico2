@@ -1,0 +1,5 @@
+---
+# Configuracion del contenedor web en la VM
+web_container_name: nginx-web
+web_container_port: 80
+web_container_image: "{{ acr_login_server }}/{{ web_image_name }}:{{ container_image_tag }}"

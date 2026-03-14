@@ -1,5 +1,14 @@
+# uso la imagen oficial de nginx como base
 FROM nginx:latest
+
+# copio mi configuración personalizada de nginx con autenticación básica
 COPY nginx.conf /etc/nginx/nginx.conf
+
+# copio la página html personalizada
 COPY index.html /usr/share/nginx/html/index.html
+
+# copio el archivo de contraseñas para la autenticación http
 COPY .htpasswd /etc/nginx/.htpasswd
+
+# expongo el puerto 80 para acceso web
 EXPOSE 80

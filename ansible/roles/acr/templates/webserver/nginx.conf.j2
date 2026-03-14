@@ -1,18 +1,24 @@
+# configuración de eventos de nginx, con 1024 conexiones por worker
 events {
     worker_connections 1024;
 }
 
 http {
+    # incluyo los tipos mime para que nginx sirva bien los archivos
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
 
     server {
+        # escucho en el puerto 80 para http
         listen 80;
         server_name _;
 
         location / {
+            # activo la autenticación básica http
             auth_basic "Restricted Access";
+            # le digo dónde está el archivo de usuarios y contraseñas
             auth_basic_user_file /etc/nginx/.htpasswd;
+            # indico el directorio raíz donde está el html
             root /usr/share/nginx/html;
             index index.html;
         }

@@ -62,6 +62,12 @@
     dest: "{{ acr_build_root }}/frontend/index.html"
     mode: "0644"
 
+- name: Render frontend application code
+  ansible.builtin.template:
+    src: frontend/app.py.j2
+    dest: "{{ acr_build_root }}/frontend/app.py"
+    mode: "0644"
+
 # genero el containerfile para redis del backend
 - name: Render backend Containerfile
   ansible.builtin.template:
@@ -70,7 +76,6 @@
     mode: "0644"
 
 # aquí construyo las tres imágenes usando el módulo de podman
-# probé con command pero el profesor dijo que había que usar el módulo nativo
 - name: Build webserver image for the VM
   containers.podman.podman_image:
     name: "{{ acr_login_server }}/{{ web_image_name }}"

@@ -1,2 +1,13 @@
-FROM mcr.microsoft.com/azuredocs/azure-vote-front:v1
+# uso python slim como base
+FROM python:3.9-slim
+
+# copio la aplicación flask
+COPY app.py /app/app.py
+
+# instalo dependencias
+RUN pip install flask redis
+
+WORKDIR /app
 EXPOSE 80
+
+CMD ["python", "app.py"]

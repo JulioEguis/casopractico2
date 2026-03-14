@@ -1,0 +1,108 @@
+# importo flask para crear la aplicación web y redis para conectar a la base de datos
+from flask import Flask, request, render_template_string
+import redis
+import os
+
+app = Flask(__name__)
+
+# me conecto a redis usando las variables de entorno que kubernetes inyecta
+redis_host = os.environ.get('BACKEND_SERVICE_HOST', 'backend')
+redis_port = int(os.environ.get('BACKEND_SERVICE_PORT', 6379))
+
+# intento conectar a redis y hago un ping para verificar
+try:
+    r = redis.Redis(
+        host=redis_host,
+        port=redis_port,
+        decode_responses=True,
+        socket_connect_timeout=5
+    )
+    r.ping()
+except:
+    r = None
+
+# plantilla html con estilos css básicos para la interfaz de votación
+HTML = '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aplicacion de Votacion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        h1 { color: #333; }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .resultado {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 5px;
+        }
+        .info {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Aplicacion de Votacion</h1>
+    <p>Caso Practico 2 - DevOps</p>
+
+    {% if error %}
+    <p style="color: red;">Error: {{ error }}</p>
+    {% else %}
+    <form method="post">
+        <button name="vote" value="Cats">Votar Gatos</button>
+        <button name="vote" value="Dogs">Votar Perros</button>
+    </form>
+    <div class="resultado">
+        <p><strong>Resultados:</strong></p>
+        <p>Gatos: {{ cats }} votos</p>
+        <p>Perros: {{ dogs }} votos</p>
+    </div>
+    {% endif %}
+    <div class="info">
+        <p>Namespace: {{ app_namespace }}</p>
+        <p>Backend: Redis</p>
+    </div>
+</body>
+</html>
+'''
+
+# ruta principal que maneja los votos y muestra los resultados
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    # si no hay conexión a redis muestro un error
+    if r is None:
+        return render_template_string(HTML, error="No se pudo conectar a Redis", cats=0, dogs=0)
+    
+    try:
+        # si es un post proceso el voto incrementando el contador correspondiente
+        if request.method == 'POST':
+            vote = request.form.get('vote')
+            if vote == 'Cats':
+                r.incr('cats')
+            elif vote == 'Dogs':
+                r.incr('dogs')
+        
+        # obtengo los votos actuales de redis
+        cats = r.get('cats') or 0
+        dogs = r.get('dogs') or 0
+        
+        return render_template_string(HTML, cats=cats, dogs=dogs, error=None)
+    except Exception as e:
+        return render_template_string(HTML, error=str(e), cats=0, dogs=0)
+
+# arranco la aplicación en el puerto 80
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80)

@@ -44,12 +44,6 @@ ansible/.build/
 ssh_key.pem
 *.pem
 
-# credenciales de ansible
-secrets.yml
-EOF
-# Claves SSH (raíz del proyecto)
-ssh_key.pem
-*.pem
 
-# Credenciales de Ansible
+# credenciales de ansible
 secrets.yml

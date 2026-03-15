@@ -38,3 +38,18 @@ terraform.rc
 ansible/secrets.yml
 ansible/ssh_key.pem
 ansible/.build/
+
+
+# claves ssh 
+ssh_key.pem
+*.pem
+
+# credenciales de ansible
+secrets.yml
+EOF
+# Claves SSH (raíz del proyecto)
+ssh_key.pem
+*.pem
+
+# Credenciales de Ansible
+secrets.yml

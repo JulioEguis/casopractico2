@@ -22,7 +22,7 @@ except:
     r = None
 
 # plantilla html con estilos css básicos para la interfaz de votación
-HTML = '''
+HTML = '''{% raw %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -71,7 +71,7 @@ HTML = '''
         <p>Perros: {{ dogs }} votos</p>
     </div>
     {% endif %}
-    <div class="info">
+    {% endraw %}<div class="info">
         <p>Namespace: {{ app_namespace }}</p>
         <p>Backend: Redis</p>
     </div>
